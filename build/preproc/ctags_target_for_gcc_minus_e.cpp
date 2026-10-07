@@ -27,16 +27,30 @@ bool cargaCompleta = false;
 int encabezado = -1;
 String bufferEncabezado = "";
 
+void mifuncion()
+{
+  enciendesalid1();
+  delay
+  apagasalida1();
+}
+
 void setup() {
 
   Serial.begin(115200);
   while (!Serial);
+Profile picture
+NEW SKETCH
+
   printBanner();
 
   initMotores();
 
   pinMode(FIN_DE_CARRERA_X, 0x2);
   pinMode(FIN_DE_CARRERA_Z, 0x2);
+
+  mifuncion();
+
+
 
 }
 
@@ -186,76 +200,76 @@ void mostrarDatosLeidos() {
 
 void printBanner() {
   Serial.println((reinterpret_cast<const __FlashStringHelper *>(
-# 187 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino" 3
+# 201 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino" 3
                 (__extension__({static const char __c[] __attribute__((__progmem__)) = (
-# 187 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino"
+# 201 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino"
                 "                                                                                         "
-# 187 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino" 3
+# 201 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino" 3
                 ); &__c[0];}))
-# 187 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino"
+# 201 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino"
                 )));
   Serial.println((reinterpret_cast<const __FlashStringHelper *>(
-# 188 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino" 3
+# 202 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino" 3
                 (__extension__({static const char __c[] __attribute__((__progmem__)) = (
-# 188 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino"
+# 202 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino"
                 "  ███╗   ███╗██╗██████╗ ██╗     ███████╗██████╗  █████╗                                   "
-# 188 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino" 3
+# 202 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino" 3
                 ); &__c[0];}))
-# 188 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino"
+# 202 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino"
                 )));
   Serial.println((reinterpret_cast<const __FlashStringHelper *>(
-# 189 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino" 3
+# 203 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino" 3
                 (__extension__({static const char __c[] __attribute__((__progmem__)) = (
-# 189 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino"
+# 203 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino"
                 "  ████╗ ████║██║██╔══██╗██║     ██╔════╝██╔══██╗██╔══██╗                                  "
-# 189 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino" 3
+# 203 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino" 3
                 ); &__c[0];}))
-# 189 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino"
+# 203 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino"
                 )));
   Serial.println((reinterpret_cast<const __FlashStringHelper *>(
-# 190 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino" 3
+# 204 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino" 3
                 (__extension__({static const char __c[] __attribute__((__progmem__)) = (
-# 190 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino"
+# 204 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino"
                 "  ██╔████╔██║██║██████╔╝██║     █████╗  ██████╔╝███████║                                  "
-# 190 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino" 3
+# 204 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino" 3
                 ); &__c[0];}))
-# 190 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino"
+# 204 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino"
                 )));
   Serial.println((reinterpret_cast<const __FlashStringHelper *>(
-# 191 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino" 3
+# 205 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino" 3
                 (__extension__({static const char __c[] __attribute__((__progmem__)) = (
-# 191 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino"
+# 205 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino"
                 "  ██║╚██╔╝██║██║██╔═══╝ ██║     ██╔══╝  ██╔══██╗██╔══██║                                  "
-# 191 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino" 3
+# 205 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino" 3
                 ); &__c[0];}))
-# 191 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino"
+# 205 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino"
                 )));
   Serial.println((reinterpret_cast<const __FlashStringHelper *>(
-# 192 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino" 3
+# 206 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino" 3
                 (__extension__({static const char __c[] __attribute__((__progmem__)) = (
-# 192 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino"
+# 206 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino"
                 "  ██║ ╚═╝ ██║██║██║     ███████╗███████╗██║  ██║██║  ██║                                  "
-# 192 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino" 3
+# 206 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino" 3
                 ); &__c[0];}))
-# 192 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino"
+# 206 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino"
                 )));
   Serial.println((reinterpret_cast<const __FlashStringHelper *>(
-# 193 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino" 3
+# 207 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino" 3
                 (__extension__({static const char __c[] __attribute__((__progmem__)) = (
-# 193 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino"
+# 207 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino"
                 "  ╚═╝     ╚═╝╚═╝╚═╝     ╚══════╝╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝                                  "
-# 193 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino" 3
+# 207 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino" 3
                 ); &__c[0];}))
-# 193 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino"
+# 207 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino"
                 )));
   Serial.println((reinterpret_cast<const __FlashStringHelper *>(
-# 194 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino" 3
+# 208 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino" 3
                 (__extension__({static const char __c[] __attribute__((__progmem__)) = (
-# 194 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino"
+# 208 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino"
                 "                                                                                         "
-# 194 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino" 3
+# 208 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino" 3
                 ); &__c[0];}))
-# 194 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino"
+# 208 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino"
                 )));
 }
 # 1 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Comandos.ino"
@@ -296,8 +310,8 @@ void comandoG1(String comando){
     bool direccion = false;
     if(comando[0] == 'X')
     {
-      if(400 <= posX + distancia)
-        distancia = 400 - posX;
+      if(450 <= posX + distancia)
+        distancia = 450 - posX;
       posX = posX + distancia;
       motor = 0;
       direccion = !(true);
@@ -316,8 +330,8 @@ void comandoG1(String comando){
     }
     else if(comando[0] == 'Z')
     {
-      if(40 <= posZ + distancia)
-        distancia = 40 - posZ;
+      if(30 <= posZ + distancia)
+        distancia = 30 - posZ;
       posZ = posZ + distancia;
       motor = 2;
       direccion = !(false);

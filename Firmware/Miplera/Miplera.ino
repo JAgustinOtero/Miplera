@@ -26,16 +26,30 @@ bool cargaCompleta = false;
 int encabezado = -1;
 String bufferEncabezado = "";
 
+void mifuncion()
+{
+  enciendesalid1();
+  delay
+  apagasalida1();
+}
+
 void setup() {
 
   Serial.begin(115200);
   while (!Serial);
+Profile picture
+NEW SKETCH
+
   printBanner();
 
   initMotores();
 
   pinMode(FIN_DE_CARRERA_X, INPUT_PULLUP);
   pinMode(FIN_DE_CARRERA_Z, INPUT_PULLUP);
+  
+  mifuncion();
+
+
 
 }
 

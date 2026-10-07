@@ -28,14 +28,16 @@ int encabezado = -1;
 String bufferEncabezado = "";
 
 #line 29 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino"
+void mifuncion();
+#line 36 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino"
 void setup();
-#line 42 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino"
+#line 56 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino"
 void loop();
-#line 144 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino"
+#line 158 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino"
 void procesarNumeroTemporal();
-#line 163 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino"
+#line 177 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino"
 void mostrarDatosLeidos();
-#line 186 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino"
+#line 200 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino"
 void printBanner();
 #line 4 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Comandos.ino"
 void mostrarDatos();
@@ -64,16 +66,30 @@ void apagarMotor();
 #line 77 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Motores.ino"
 void initMotores();
 #line 29 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\Miplera.ino"
+void mifuncion()
+{
+  enciendesalid1();
+  delay
+  apagasalida1();
+}
+
 void setup() {
 
   Serial.begin(115200);
   while (!Serial);
+Profile picture
+NEW SKETCH
+
   printBanner();
 
   initMotores();
 
   pinMode(FIN_DE_CARRERA_X, INPUT_PULLUP);
   pinMode(FIN_DE_CARRERA_Z, INPUT_PULLUP);
+  
+  mifuncion();
+
+
 
 }
 

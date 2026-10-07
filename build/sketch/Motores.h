@@ -22,8 +22,8 @@
 #define HOME_X true
 #define HOME_Z false
 
-#define MAXIMO_X 400
-#define MAXIMO_Z 40
+#define MAXIMO_X 450
+#define MAXIMO_Z 30
 
 #define X 0
 #define Y 1
