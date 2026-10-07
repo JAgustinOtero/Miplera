@@ -49,7 +49,7 @@ void origenMotor(int motor, int stopPin){
   else if (motor == Z){
     distanciaInicio = posZ;
     dir = HOME_Z;
-    velocidad = VELOCIDAD_FUNC_Z;
+    velocidad = VELOCIDAD_FUNC_Z + 10;
     posZ = 0;
   }
 

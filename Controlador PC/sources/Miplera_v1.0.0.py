@@ -1121,7 +1121,7 @@ class App(ctk.CTk):
             self.update_start_button_state()  # Re-evalúa el estado del botón INICIO
 
     def send_inicio(self):
-        self.send_serial("INICIO")
+        self.send_serial("G80")
 
     def log_terminal(self, text):
         if hasattr(self, "terminal"):

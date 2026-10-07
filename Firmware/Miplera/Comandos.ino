@@ -1,5 +1,5 @@
 #include "Comandos.h"
-#define ALTURA_FUNCIONAMIENTO (alturaVarilla + diametroVarilla/2 - datos[i])
+#define ALTURA_FUNCIONAMIENTO (double)(alturaVarilla + diametroVarilla/2 - datos[i])
 
 void mostrarDatos(){
   Serial.print("  X:");
@@ -23,8 +23,8 @@ void comandoG0(String comando){
       }
 
       else{
-        origenMotor(X,FIN_DE_CARRERA_X);
         origenMotor(Z,FIN_DE_CARRERA_Z);
+        origenMotor(X,FIN_DE_CARRERA_X);
       }
   mostrarDatos();
 }
@@ -137,26 +137,22 @@ void inicioPrograma(){
   posY = 0;
   posM = 0;
   /* INICIO DE CORTE*/
-      origenMotor(X,FIN_DE_CARRERA_X);
-      origenMotor(Z,FIN_DE_CARRERA_Z);
-      mostrarDatos();
-      encenderMotor();
-      for(int i=0;i<TOTAL_FILAS;i++){
-        // calcular movimiento Z (altura)
-        //altura = promedioDistancias(CANT_MUESTRAS) * 4;
-        girarMotorPap(Z,!(HOME_Z),/*altura*/ALTURA_FUNCIONAMIENTO,VELOCIDAD_FUNC_Z);
-        posY = ALTURA_FUNCIONAMIENTO;
-        mostrarDatos();
-        girarMotorPap(X,sentido,/*MAXIMO_X*/200,VELOCIDAD_FUNC_X);
-        posX = 200*(int)!sentido;
-        sentido = !sentido;
-        girarMotorPap(Z,(HOME_Z),/*altura*/ALTURA_FUNCIONAMIENTO,VELOCIDAD_FUNC_Z);
-        posZ = 0;
-        girarMotorPap(Y,true,((double)1/TOTAL_FILAS),VELOCIDAD_FUNC_Y);
-        posY = posY + 1;
-        //girarMotorPap(M,true,((double)1/TOTAL_FILAS),VELOCIDAD_FUNC_Y);
-        //posM = posM + 1;
-      }
-      apagarMotor();
-      origenMotor(X,FIN_DE_CARRERA_X);
+  origenMotor(Z,FIN_DE_CARRERA_Z);
+  origenMotor(X,FIN_DE_CARRERA_X);
+  mostrarDatos();
+  encenderMotor();
+  for(int i=0;i<cantidadDatos;i++){
+    girarMotorPap(Z,!(HOME_Z),ALTURA_FUNCIONAMIENTO,VELOCIDAD_FUNC_Z); //baja eje Z
+    posY = ALTURA_FUNCIONAMIENTO;
+    girarMotorPap(X,!(HOME_X),MAXIMO_X,VELOCIDAD_FUNC_X/2); //corta
+    sentido = !sentido;
+    girarMotorPap(Z,(HOME_Z),ALTURA_FUNCIONAMIENTO,VELOCIDAD_FUNC_Z);//sube eje Z
+    posZ = 0;
+    girarMotorPap(X,(HOME_X),MAXIMO_X,VELOCIDAD_FUNC_X); //vuelve
+    sentido = !sentido;
+    girarMotorPap(Y,true,((double)1/cantidadDatos),VELOCIDAD_FUNC_Y); //gira
+    posY = posY + 360/cantidadDatos;
+  }
+  apagarMotor();
+  origenMotor(X,FIN_DE_CARRERA_X);
 }

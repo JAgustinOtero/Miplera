@@ -21,7 +21,7 @@
 #define HOME_X true
 #define HOME_Z false
 
-#define MAXIMO_X 450
+#define MAXIMO_X 400
 #define MAXIMO_Z 30
 
 #define X 0
@@ -29,9 +29,9 @@
 #define Z 2
 #define M 3
 
-#define VELOCIDAD_TEST 60
-#define VELOCIDAD_FUNC_Z 15
-#define VELOCIDAD_FUNC_X 60
+#define VELOCIDAD_TEST 100
+#define VELOCIDAD_FUNC_Z 4
+#define VELOCIDAD_FUNC_X 100
 #define VELOCIDAD_FUNC_Y 5
 #define VELOCIDAD_FUNC_M 5
 
