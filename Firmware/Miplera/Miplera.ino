@@ -30,6 +30,13 @@ const int MOTOR_DC = 8;
 
 
 
+void mifuncion()
+{
+  enciendesalid1();
+  delay
+  apagasalida1();
+}
+
 void setup() {
   initDisplay();
 
