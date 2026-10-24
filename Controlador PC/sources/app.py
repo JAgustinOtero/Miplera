@@ -79,7 +79,7 @@ class App(ctk.CTk):
         self.serial_reader_running = False
         self.motor_on = False
         self.g99_sent = False
-        self.position_sent = False  # NUEVO: Estado para rastrear si se envió la posición
+        self.position_sent = False
         self.help_window = None
 
         self.build_ui()
@@ -120,7 +120,7 @@ class App(ctk.CTk):
             )
 
     def update_start_button_state(self):
-        """NUEVO: Evalúa si se cumplen ambas condiciones para habilitar el botón INICIO."""
+        """Evalúa si se cumplen ambas condiciones para habilitar el botón INICIO."""
         if self.g99_sent and self.position_sent:
             self.set_btn_state(self.start_button, True)
         else:
@@ -222,19 +222,19 @@ class App(ctk.CTk):
         help_text = (
             "------------------------ MODO DE USO: --------------------------\n"
             "--------------------------------------------------\n"
-            "1. Conexión Serie: Selecciona el Puerto COM de tu dispositivo (ej. Arduino). (Usa el botón 'Actualizar' si no aparece). Selecciona el Baudrate (por defecto 115200). Presiona CONECTAR.\n"
-            "2. Cargar DXF: Haz clic en el botón 'Cargar DXF' y selecciona tu archivo .dxf.\n"
-            "3. Centro y Referencia: Haz clic en 'Detectar centro' para encontrar automáticamente la entidad CIRCLE más grande dentro del archivo. Si no hay un círculo de referencia, puedes ingresar las coordenadas X e Y manualmente.\n"
-            "4. Configurar el Análisis: Selecciona la Resolución angular deseada (p. ej., 1.0°). Elige el sentido de barrido (Antihorario u Horario).\n"
+            "1. Conexión Serie: Selecciona el Puerto COM de tu dispositivo (ej. Arduino). Usa el botón 'Actualizar' si no aparece. Selecciona el Baudrate (por defecto 115200) y presiona CONECTAR.\n"
+            "2. Cargar DXF: Haz clic en el botón 'Cargar DXF' y selecciona tu archivo .dxf. El sistema analizará las limitaciones mecánicas.\n"
+            "3. Centro y Referencia: Haz clic en 'Detectar centro' para encontrar automáticamente la entidad CIRCLE más grande. Si no la hay, ingresa las coordenadas X e Y manualmente.\n"
+            "4. Configurar el Análisis: Selecciona la Resolución angular deseada (p. ej., 1.0°) y el sentido de barrido (Antihorario u Horario).\n"
             "5. Ejecutar: Haz clic en 'ANALIZAR 360°'. La tabla se llenará con los pares de Ángulo (°) y Distancia (mm).\n"
-            "6. Enviar DATOS: Una vez completado el análisis, se habilitará el botón 'ENVIAR DATOS'. Al presionarlo, el vector de distancias se enviará por la conexión serie activa y te redirigirá a la pestaña de control.\n\n"
+            "6. Enviar DATOS o Exportar: Puedes transmitir las distancias directamente usando 'ENVIAR DATOS' o guardar los resultados limpios en un archivo plano mediante 'Exportar a TXT'.\n\n"
             "Pestaña: Control y Terminal\n"
-            "7. Enviar Posición: Utiliza los botones en el panel de control para bajar el eje Z hasta que toque con la varilla de madera. Selecciona el diámetro en mm y presiona 'Enviar posicion' para transmitir la posicion y magnitud de la varilla.\n"
-            "8. Inicio de Trabajo: El botón 'INICIO' se habilitará automáticamente una vez enviado el comando 'ENVIAR DATOS' (G99) Y presionado el botón 'Enviar posicion'.\n"
+            "7. Enviar Posición: Selecciona el Diámetro (mm) y el Largo (cm) de la varilla en los desplegables. Presiona 'Enviar posicion' para transmitir el comando (ej. G5 26 30).\n"
+            "8. Inicio de Trabajo: El botón 'INICIO' se habilitará automáticamente una vez enviado el comando de análisis (G99) Y presionado 'Enviar posicion'.\n"
             "------------------------ FUNCIONES ADICIONALES ------------------------\n"
-            "1. Panel de Control Manual: Configura las magnitudes de paso para los ejes lineales (X/Z) y rotacional (Y). Utiliza la cruceta de botones para mover los ejes, ejecutar giros o volver a la posición de origen (HOME).\n"
+            "1. Panel de Control Manual: Configura las magnitudes de paso para los ejes X/Z e Y. Utiliza la cruceta para mover los ejes o volver a la posición HOME.\n"
             "2. Motor Auxiliar: Activa o desactiva la sierra (S1 ON / S1 OFF).\n"
-            "3. Terminal Serie: Monitoriza las respuestas recibidas en tiempo real. Envía comandos en G-Code de forma manual mediante el cuadro de texto inferior."
+            "3. Terminal Serie: Monitoriza respuestas en tiempo real o envía comandos manuales."
         )
 
         help_textbox.insert("1.0", help_text)
@@ -334,11 +334,11 @@ class App(ctk.CTk):
         ctk.CTkLabel(cfg_inner, text="Resolución:", font=("Segoe UI", 13)).grid(
             row=0, column=0, padx=2
         )
-        self.res_var = ctk.StringVar(value="1.0°")
+        self.res_var = ctk.StringVar(value="5.0°")
         ctk.CTkOptionMenu(
             cfg_inner,
             variable=self.res_var,
-            values=[f"{i/10:.1f}°" for i in range(5, 21)],
+            values=[f"{i/2:0.1f}°" for i in range(1, 11)],
             width=90,
             corner_radius=6,
             font=("Segoe UI", 13),
@@ -377,8 +377,9 @@ class App(ctk.CTk):
         action_frame = ctk.CTkFrame(tab, fg_color="transparent")
         action_frame.pack(fill="x", padx=5, pady=5)
 
-        action_frame.columnconfigure(0, weight=8)
+        action_frame.columnconfigure(0, weight=6)
         action_frame.columnconfigure(1, weight=2)
+        action_frame.columnconfigure(2, weight=2)
 
         ctk.CTkButton(
             action_frame,
@@ -399,8 +400,20 @@ class App(ctk.CTk):
             font=("Segoe UI", 13, "bold"),
             command=self.send_g99,
         )
-        self.btn_send_g99.grid(row=0, column=1, sticky="ew", padx=(5, 0))
+        self.btn_send_g99.grid(row=0, column=1, sticky="ew", padx=3)
         self.set_btn_state(self.btn_send_g99, False)
+
+        # Botón Exportar TXT movido a esta pestaña
+        ctk.CTkButton(
+            action_frame,
+            text="Exportar a TXT",
+            corner_radius=8,
+            height=38,
+            font=("Segoe UI", 13, "bold"),
+            fg_color=COLOR_BTN_ACTION,
+            hover_color=COLOR_BTN_HOVER,
+            command=self.export_dxf_txt,
+        ).grid(row=0, column=2, sticky="ew", padx=(3, 0))
 
         # Perfil Radial (Tabla Treeview dentro de caja)
         table_frame = self.create_card_frame(tab)
@@ -575,18 +588,19 @@ class App(ctk.CTk):
         container.pack(expand=True, pady=10)
 
         # ----------------------------------------------------
-        # CONTROL: Diámetro varilla (mm) + Botón Enviar Posición
+        # CONTROL: Diámetro (Fila 1) + Largo (Fila 2) + Botón Enviar (A la derecha ocupando ambas filas)
         # ----------------------------------------------------
-        rod_frame = ctk.CTkFrame(container, fg_color="transparent")
-        rod_frame.pack(pady=(0, 10))
+        rod_grid = ctk.CTkFrame(container, fg_color="transparent")
+        rod_grid.pack(pady=(0, 10))
 
+        # Diámetro varilla (Fila 0, Columna 0 y 1)
         ctk.CTkLabel(
-            rod_frame, text="Diametro varilla (mm):", font=("Segoe UI", 13)
-        ).pack(side="left", padx=4)
+            rod_grid, text="Diametro varilla (mm):", font=("Segoe UI", 13)
+        ).grid(row=0, column=0, padx=4, pady=2, sticky="e")
 
-        self.rod_diameter_var = ctk.StringVar(value="10")
+        self.rod_diameter_var = ctk.StringVar(value="26")
         ctk.CTkOptionMenu(
-            rod_frame,
+            rod_grid,
             variable=self.rod_diameter_var,
             values=[str(i) for i in range(10, 31)],
             width=70,
@@ -596,17 +610,37 @@ class App(ctk.CTk):
             fg_color=COLOR_FG_DROPDOWN,
             text_color=COLOR_TEXT_DROPDOWN,
             button_hover_color=COLOR_BTN_HOVER
-        ).pack(side="left", padx=4)
+        ).grid(row=0, column=1, padx=4, pady=2, sticky="w")
 
+        # Largo varilla (Fila 1, Columna 0 y 1)
+        ctk.CTkLabel(
+            rod_grid, text="Largo varilla (cm):", font=("Segoe UI", 13)
+        ).grid(row=1, column=0, padx=4, pady=2, sticky="e")
+
+        self.rod_length_var = ctk.StringVar(value="30")
+        ctk.CTkOptionMenu(
+            rod_grid,
+            variable=self.rod_length_var,
+            values=["10", "20", "30", "40", "50"],
+            width=70,
+            corner_radius=6,
+            font=("Segoe UI", 13),
+            button_color=COLOR_BTN_ACTION,
+            fg_color=COLOR_FG_DROPDOWN,
+            text_color=COLOR_TEXT_DROPDOWN,
+            button_hover_color=COLOR_BTN_HOVER
+        ).grid(row=1, column=1, padx=4, pady=2, sticky="w")
+
+        # Botón "Enviar posicion" a la derecha abarcando ambas filas (rowspan=2)
         ctk.CTkButton(
-            rod_frame,
+            rod_grid,
             text="Enviar posicion",
             corner_radius=6,
             font=("Segoe UI", 12, "bold"),
             fg_color=COLOR_BTN_ACTION,
             hover_color=COLOR_BTN_HOVER,
             command=self.send_rod_diameter,
-        ).pack(side="left", padx=6)
+        ).grid(row=0, column=2, rowspan=2, padx=(10, 4), pady=2, sticky="nsew")
 
         # Selector de Pasos
         selectors = ctk.CTkFrame(container, fg_color="transparent")
@@ -802,153 +836,82 @@ class App(ctk.CTk):
         )
 
     # ============================================================
-    # LÓGICA CAD & ANÁLISIS
+    # MÉTODOS DE PROCESAMIENTO CAD Y DXF
     # ============================================================
     def load_dxf(self):
-        path = filedialog.askopenfilename(
-            title="Seleccionar DXF",
-            filetypes=[("DXF", "*.dxf"), ("Todos los archivos", "*.*")],
+        filename = filedialog.askopenfilename(
+            filetypes=[("Archivos DXF", "*.dxf"), ("Todos los archivos", "*.*")]
         )
-        if not path:
+        if not filename:
             return
 
         try:
-            self.doc = ezdxf.readfile(path)
-            self.entities = list(self.doc.modelspace())
-            self.reference_circle = None
-            self.results = []
-            
-            self.set_btn_state(self.btn_send_g99, False)
-            self.g99_sent = False
-            self.position_sent = False  # NUEVO: Reinicia la bandera al cargar nuevo archivo
-            self.update_start_button_state()  # Deshabilita el botón INICIO
-
-            self.file_var.set(path)
-            self.detect_circle_center(show_message=False)
+            self.doc = ezdxf.readfile(filename)
+            msp = self.doc.modelspace()
+            self.entities = list(msp)
+            self.file_var.set(filename)
             self.status_var.set(f"DXF cargado: {len(self.entities)} entidades.")
-            messagebox.showinfo(
-                "DXF cargado",
-                f"Archivo cargado correctamente.\n\nEntidades encontradas: {len(self.entities)}",
-            )
+            self.detect_circle_center()
+            self.validar_silueta()
         except Exception as e:
-            messagebox.showerror("Error", f"No se pudo cargar el DXF:\n\n{e}")
+            messagebox.showerror("Error", f"No se pudo cargar el archivo DXF:\n{e}")
 
-    def detect_circle_center(self, show_message=True):
-        circles = [e for e in self.entities if e.dxftype() == "CIRCLE"]
-        if not circles:
-            self.reference_circle = None
-            self.center = None
-            self.circle_info_var.set(
-                "No se encontró CIRCLE. Introducí el centro manualmente."
-            )
-            if show_message:
-                messagebox.showwarning(
-                    "Sin círculo", "No se encontró ninguna entidad CIRCLE."
-                )
+    def detect_circle_center(self):
+        if not self.entities:
             return
 
-        c = max(circles, key=lambda e: float(e.dxf.radius))
-        self.reference_circle = c
-        self.center = (float(c.dxf.center.x), float(c.dxf.center.y))
-        radius = float(c.dxf.radius)
-
-        self.x_var.set(f"{self.center[0]:.6f}")
-        self.y_var.set(f"{self.center[1]:.6f}")
-        self.circle_info_var.set(
-            f"Referencia: radio {radius:.4f}  |  diámetro {2 * radius:.4f}  |  excluido del perfil"
-        )
-
-        if show_message:
-            messagebox.showinfo(
-                "Centro detectado",
-                f"Centro:\nX = {self.center[0]:.6f}\nY = {self.center[1]:.6f}\n\nRadio = {radius:.6f}",
+        circles = [e for e in self.entities if e.dxftype() == "CIRCLE"]
+        if circles:
+            largest = max(circles, key=lambda c: float(c.dxf.radius))
+            self.reference_circle = largest
+            cx, cy, _ = largest.dxf.center
+            self.x_var.set(f"{cx:.3f}")
+            self.y_var.set(f"{cy:.3f}")
+            self.circle_info_var.set(
+                f"Círculo de referencia: Centro ({cx:.2f}, {cy:.2f}) | Radio = {largest.dxf.radius:.2f} mm"
             )
+        else:
+            self.circle_info_var.set("Círculo de referencia: No detectado (ingrese manualmente).")
 
     def get_center(self):
         try:
-            return (float(self.x_var.get()), float(self.y_var.get()))
+            return float(self.x_var.get()), float(self.y_var.get())
         except ValueError:
-            raise ValueError("Centro X/Y inválido.")
-
-    def entity_to_segments(self, entity):
-        typ = entity.dxftype()
-
-        if typ == "LINE":
-            p1 = entity.dxf.start
-            p2 = entity.dxf.end
-            return [((float(p1.x), float(p1.y)), (float(p2.x), float(p2.y)))]
-
-        if typ == "LWPOLYLINE":
-            points = list(entity.get_points("xy"))
-            if len(points) < 2:
-                return []
-            pts = [(float(p[0]), float(p[1])) for p in points]
-            result = [(pts[i], pts[i + 1]) for i in range(len(pts) - 1)]
-            if entity.closed:
-                result.append((pts[-1], pts[0]))
-            return result
-
-        if typ == "POLYLINE":
-            verts = list(entity.vertices)
-            if len(verts) < 2:
-                return []
-            pts = [
-                (float(v.dxf.location.x), float(v.dxf.location.y))
-                for v in verts
-            ]
-            result = [(pts[i], pts[i + 1]) for i in range(len(pts) - 1)]
-            if entity.is_closed:
-                result.append((pts[-1], pts[0]))
-            return result
-
-        if typ in ("ARC", "CIRCLE"):
-            center = entity.dxf.center
-            cx, cy = float(center.x), float(center.y)
-            radius = float(entity.dxf.radius)
-
-            if typ == "CIRCLE":
-                a0, a1 = 0.0, 360.0
-            else:
-                a0, a1 = float(entity.dxf.start_angle), float(
-                    entity.dxf.end_angle
-                )
-                if a1 <= a0:
-                    a1 += 360.0
-
-            n = max(8, int(math.ceil((a1 - a0) / 0.1)))
-            angles = np.linspace(math.radians(a0), math.radians(a1), n + 1)
-            pts = [
-                (cx + radius * math.cos(a), cy + radius * math.sin(a))
-                for a in angles
-            ]
-            return [(pts[i], pts[i + 1]) for i in range(len(pts) - 1)]
-
-        return []
+            return 0.0, 0.0
 
     def build_geometry(self):
         segments = []
-        for entity in self.entities:
-            if (
-                self.reference_circle is not None
-                and entity is self.reference_circle
-            ):
+        for e in self.entities:
+            if self.reference_circle is not None and e is self.reference_circle:
                 continue
-            segments.extend(self.entity_to_segments(entity))
+            typ = e.dxftype()
+            if typ == "LINE":
+                p1 = (float(e.dxf.start.x), float(e.dxf.start.y))
+                p2 = (float(e.dxf.end.x), float(e.dxf.end.y))
+                segments.append((p1, p2))
+            elif typ in ("LWPOLYLINE", "POLYLINE"):
+                if typ == "LWPOLYLINE":
+                    pts = [(float(p[0]), float(p[1])) for p in e.get_points("xy")]
+                else:
+                    pts = [(float(v.dxf.location.x), float(v.dxf.location.y)) for v in e.vertices]
+                
+                for i in range(len(pts) - 1):
+                    segments.append((pts[i], pts[i + 1]))
+                if getattr(e, "closed", False) or getattr(e, "is_closed", False):
+                    segments.append((pts[-1], pts[0]))
         return segments
 
-    @staticmethod
-    def ray_segment_intersection(cx, cy, dx, dy, p1, p2):
+    def ray_segment_intersection(self, cx, cy, dx, dy, p1, p2):
         x1, y1 = p1
         x2, y2 = p2
         sx, sy = x2 - x1, y2 - y1
-        cross = dx * sy - dy * sx
 
-        if abs(cross) < 1e-12:
+        denom = dx * sy - dy * sx
+        if abs(denom) < 1e-9:
             return None
 
-        qpx, qpy = x1 - cx, y1 - cy
-        t = (qpx * sy - qpy * sx) / cross
-        u = (qpx * dy - qpy * dx) / cross
+        t = ((x1 - cx) * sy - (y1 - cy) * sx) / denom
+        u = ((x1 - cx) * dy - (y1 - cy) * dx) / denom
 
         if t >= 0 and 0 <= u <= 1:
             return t
@@ -956,251 +919,326 @@ class App(ctk.CTk):
 
     def analyze(self):
         if not self.entities:
-            messagebox.showwarning("Análisis", "Primero cargá un DXF.")
+            messagebox.showwarning("Atención", "Por favor, carga un archivo DXF primero.")
+            return
+
+        cx, cy = self.get_center()
+        segments = self.build_geometry()
+        if not segments:
+            messagebox.showerror("Error", "No se encontraron geometrías válidas en el DXF.")
             return
 
         try:
-            cx, cy = self.get_center()
-            resolution = float(self.res_var.get().replace("°", ""))
-        except ValueError as e:
-            messagebox.showerror("Error", str(e))
-            return
+            res_val = float(self.res_var.get().replace("°", ""))
+        except ValueError:
+            res_val = 1.0
 
-        segments = self.build_geometry()
-        if not segments:
-            messagebox.showerror(
-                "Error", "No se encontró geometría analizable."
-            )
-            return
-
-        count = int(round(360 / resolution))
-        base = [i * resolution for i in range(count)]
-
-        if self.direction_var.get() == "Horario":
-            angles = [0.0] + [360.0 - i * resolution for i in range(1, count)]
-        else:
-            angles = base
-
-        self.results = []
-        for angle in angles:
-            a = math.radians(angle)
-            dx, dy = math.cos(a), math.sin(a)
-            distances = []
-            for p1, p2 in segments:
-                d = self.ray_segment_intersection(cx, cy, dx, dy, p1, p2)
-                if d is not None:
-                    distances.append(d)
-            distance = min(distances) if distances else None
-            self.results.append((angle, distance))
-
+        steps = int(round(360.0 / res_val))
+        self.results.clear()
         for item in self.tree.get_children():
             self.tree.delete(item)
 
-        valid = 0
-        for angle, distance in self.results:
-            value = f"{distance:.4f}" if distance is not None else ""
-            if distance is not None:
-                valid += 1
-            self.tree.insert("", "end", values=(f"{angle:.1f}", value))
+        is_ccw = self.direction_var.get() == "Antihorario"
 
-        self.status_var.set(
-            f"Análisis: {len(self.results)} posiciones | {valid} válidas | Intersección más cercana"
-        )
+        for i in range(steps):
+            angle_deg = i * res_val
+            calc_angle = angle_deg if is_ccw else (360.0 - angle_deg) % 360.0
+            rad = math.radians(calc_angle)
+            dx, dy = math.cos(rad), math.sin(rad)
+
+            intersecciones = []
+            for p1, p2 in segments:
+                t = self.ray_segment_intersection(cx, cy, dx, dy, p1, p2)
+                if t is not None:
+                    intersecciones.append(t)
+
+            dist = min(intersecciones) if intersecciones else 0.0
+            self.results.append((angle_deg, dist))
+            self.tree.insert("", "end", values=(f"{angle_deg:.1f}", f"{dist:.3f}"))
+
+        self.status_var.set(f"Análisis completado: {len(self.results)} puntos procesados.")
         self.set_btn_state(self.btn_send_g99, True)
 
-    def make_g99(self):
-        if not self.results:
-            raise ValueError("Primero ejecutá el análisis.")
-        if any(d is None for _, d in self.results):
-            raise ValueError("Hay ángulos sin medición válida.")
-
-        values = [f"{d:.4f}" for _, d in self.results]
-        return "G99 " + " ".join(values) + "$"
-
     def send_g99(self):
-        try:
-            command = self.make_g99()
-        except ValueError as e:
-            messagebox.showwarning("G99", str(e))
+        if not self.results:
+            messagebox.showwarning("Atención", "No hay datos del análisis para enviar.")
             return
 
-        if self.send_serial(command):
-            self.tabview.set(self.tab_control_name)
+        d_str = ",".join([f"{d:.2f}" for _, d in self.results])
+        cmd = f"G99 D={d_str}"
+        self.send_command(cmd)
+        self.g99_sent = True
+        self.update_start_button_state()
+        self.tabview.set(self.tab_control_name)
+
+    def export_dxf_txt(self):
+        """Exporta únicamente la cadena limpia de distancias del análisis radial a un archivo TXT."""
+        if not self.results:
+            messagebox.showwarning("Atención", "No se han generado datos de análisis de 360° aún.")
+            return
+
+        filepath = filedialog.asksaveasfilename(
+            defaultextension=".txt",
+            filetypes=[("Archivos de texto", "*.txt"), ("Todos los archivos", "*.*")],
+            title="Exportar datos DXF a TXT"
+        )
+        if not filepath:
+            return
+
+        try:
+            d_str = ",".join([f"{d:.2f}" for _, d in self.results])
+
+            with open(filepath, "w", encoding="utf-8") as f:
+                f.write(d_str)
+
+            messagebox.showinfo("Exportación Exitosa", f"Datos exportados correctamente en:\n{filepath}")
+            self.log_terminal(f"Datos exportados a archivo TXT: {filepath}")
+        except Exception as e:
+            messagebox.showerror("Error de Exportación", f"No se pudo guardar el archivo:\n{e}")
 
     # ============================================================
-    # MANEJO SERIE & COMANDOS
+    # LÓGICA DE VALIDACIÓN GEOMÉTRICA DXF
+    # ============================================================
+    def validar_silueta(self):
+        """Valida que la silueta del DXF cargado cumpla con las restricciones mecánicas."""
+        errores = []
+
+        closed_loops = 0
+        for e in self.entities:
+            if self.reference_circle is not None and e is self.reference_circle:
+                continue
+            typ = e.dxftype()
+            if typ == "CIRCLE":
+                closed_loops += 1
+            elif typ in ("LWPOLYLINE", "POLYLINE"):
+                if getattr(e, "closed", False) or getattr(e, "is_closed", False):
+                    closed_loops += 1
+
+        if closed_loops > 1:
+            errores.append("- Contiene agujeros internos o múltiples geometrías cerradas independientes.")
+
+        segments = self.build_geometry()
+        if not segments:
+            return True
+
+        cx, cy = self.get_center()
+
+        sombras_detectadas = False
+        perfil_picos = []
+
+        for deg in range(360):
+            rad = math.radians(deg)
+            dx, dy = math.cos(rad), math.sin(rad)
+            intersecciones = []
+            for p1, p2 in segments:
+                t = self.ray_segment_intersection(cx, cy, dx, dy, p1, p2)
+                if t is not None:
+                    intersecciones.append(t)
+
+            intersecciones.sort()
+            unique_intersections = []
+            for val in intersecciones:
+                if not unique_intersections or abs(val - unique_intersections[-1]) > 1e-3:
+                    unique_intersections.append(val)
+
+            if len(unique_intersections) > 1:
+                sombras_detectadas = True
+
+            if unique_intersections:
+                min_t = min(unique_intersections)
+                perfil_picos.append((deg, min_t, math.cos(rad) * min_t + cx, math.sin(rad) * min_t + cy))
+
+        if sombras_detectadas:
+            errores.append("- Avanza sobre zonas de sombra (reingresos o superficies no alcanzables radialmente).")
+
+        for e in self.entities:
+            if self.reference_circle is not None and e is self.reference_circle:
+                continue
+            typ = e.dxftype()
+            if typ == "ARC":
+                r = float(e.dxf.radius)
+                if r < 2.0:
+                    errores.append(f"- Presenta arcos cóncavos con radio menor a 2.0 mm (Encontrado: {r:.2f} mm).")
+                    break
+
+        angulo_excedido = False
+        for e in self.entities:
+            if self.reference_circle is not None and e is self.reference_circle:
+                continue
+            typ = e.dxftype()
+            if typ in ("LWPOLYLINE", "POLYLINE"):
+                if typ == "LWPOLYLINE":
+                    pts = [(float(p[0]), float(p[1])) for p in e.get_points("xy")]
+                else:
+                    pts = [(float(v.dxf.location.x), float(v.dxf.location.y)) for v in e.vertices]
+
+                if len(pts) >= 3:
+                    for i in range(len(pts) - 1):
+                        p_prev = pts[i - 1]
+                        p_curr = pts[i]
+                        p_next = pts[i + 1 if i + 1 < len(pts) else 0]
+
+                        v1 = (p_prev[0] - p_curr[0], p_prev[1] - p_curr[1])
+                        v2 = (p_next[0] - p_curr[0], p_next[1] - p_curr[1])
+
+                        dot = v1[0] * v2[0] + v1[1] * v2[1]
+                        mag1 = math.hypot(v1[0], v1[1])
+                        mag2 = math.hypot(v2[0], v2[1])
+
+                        if mag1 * mag2 > 0:
+                            cos_a = max(-1.0, min(1.0, dot / (mag1 * mag2)))
+                            angle_deg = math.degrees(math.acos(cos_a))
+                            deflection = 180.0 - angle_deg
+                            if deflection > 35.0:
+                                angulo_excedido = True
+                                break
+            if angulo_excedido:
+                errores.append("- Presenta ángulos cóncavos pronunciados que superan los 35°.")
+                break
+
+        if len(perfil_picos) >= 3:
+            picos_local = []
+            for i in range(len(perfil_picos)):
+                prev_d = perfil_picos[i - 1][1]
+                curr_d = perfil_picos[i][1]
+                next_d = perfil_picos[(i + 1) % len(perfil_picos)][1]
+
+                if curr_d > prev_d and curr_d > next_d:
+                    picos_local.append(perfil_picos[i])
+
+            separacion_insuficiente = False
+            for i in range(len(picos_local) - 1):
+                pk1 = picos_local[i]
+                pk2 = picos_local[i + 1]
+                dist_picos = math.hypot(pk1[2] - pk2[2], pk1[3] - pk2[3])
+                if dist_picos < 1.0:
+                    separacion_insuficiente = True
+                    break
+
+            if separacion_insuficiente:
+                errores.append("- La separación entre crestas/picos adyacentes es menor a 1.0 mm.")
+
+        if errores:
+            msg = "⚠️ LA SILUETA ADJUNTADA NO SE PUEDE REALIZAR.\n\n"
+            msg += "Motivos / Restricciones no cumplidas:\n"
+            msg += "\n".join(errores)
+            messagebox.showwarning("Aviso de Restricción Mecánica", msg)
+
+    # ============================================================
+    # COMUNICACIÓN SERIE Y CONTROL MANUAL
     # ============================================================
     def refresh_ports(self):
-        ports = [p.device for p in serial.tools.list_ports.comports()]
+        ports = [port.device for port in serial.tools.list_ports.comports()]
         self.port_combo.configure(values=ports)
-        if ports and self.port_var.get() not in ports:
+        if ports:
             self.port_var.set(ports[0])
-
-    def is_serial_connected(self):
-        return self.ser is not None and self.ser.is_open
+        else:
+            self.port_var.set("")
 
     def toggle_serial(self):
-        if self.is_serial_connected():
-            self.serial_reader_running = False
+        if self.ser is None or not self.ser.is_open:
+            port = self.port_var.get()
+            baud = self.baud_var.get()
+            if not port:
+                messagebox.showerror("Error", "No se ha seleccionado ningún puerto COM.")
+                return
             try:
-                self.ser.close()
-            except Exception:
-                pass
-            self.ser = None
-            self.connect_button.configure(
-                text="CONECTAR", fg_color=COLOR_BTN_ACTION, hover_color=COLOR_BTN_HOVER
-            )
-            self.serial_status_var.set("● Desconectado")
-            self.lbl_serial_status.configure(text_color="#EF4444")
-            self.set_btn_state(self.start_button, False)
-            self.log_terminal("[SERIE] Desconectado")
-            return
+                self.ser = serial.Serial(port, int(baud), timeout=0.1)
+                self.serial_status_var.set("● Conectado")
+                self.lbl_serial_status.configure(text_color="#22C55E")
+                self.connect_button.configure(text="DESCONECTAR")
+                self.log_terminal(f"Conectado exitosamente a {port} @ {baud} bps.")
+            except Exception as e:
+                messagebox.showerror("Error de Conexión", f"No se pudo abrir el puerto:\n{e}")
+        else:
+            self.close_serial()
 
-        port = self.port_var.get()
-        if not port:
-            messagebox.showwarning("Serie", "Seleccioná un puerto COM.")
-            return
-
-        try:
-            baud = int(self.baud_var.get())
-            self.ser = serial.Serial(port=port, baudrate=baud, timeout=0.02)
-            self.connect_button.configure(
-                text="DESCONECTAR", fg_color="#DC2626", hover_color="#991B1B"
-            )
-            self.serial_status_var.set(f"● Conectado: {port} @ {baud}")
-            self.lbl_serial_status.configure(text_color="#10B981")
-            self.log_terminal(f"[SERIE] Conectado a {port} @ {baud}")
-            self.serial_reader_running = True
-        except Exception as e:
-            self.ser = None
-            self.serial_status_var.set("● Desconectado")
-            self.lbl_serial_status.configure(text_color="#EF4444")
-            messagebox.showerror("Error de conexión", str(e))
+    def close_serial(self):
+        if self.ser and self.ser.is_open:
+            self.ser.close()
+        self.ser = None
+        self.serial_status_var.set("● Desconectado")
+        self.lbl_serial_status.configure(text_color="#EF4444")
+        self.connect_button.configure(text="CONECTAR")
+        self.log_terminal("Puerto serie desconectado.")
 
     def read_serial(self):
-        if self.is_serial_connected():
+        if self.ser and self.ser.is_open and self.ser.in_waiting:
             try:
-                while self.ser.in_waiting:
-                    raw = self.ser.readline()
-                    if raw:
-                        text = raw.decode("utf-8", errors="replace").rstrip("")
-                        if text:
-                            self.log_terminal(text)
-                            # Al recibir la respuesta "G99", marcamos como enviado el vector de datos y evaluamos
-                            if "G99" in text.upper():
-                                self.g99_sent = True
-                                self.update_start_button_state()
-            except Exception as e:
-                self.log_terminal(f"[ERROR RX] {e}")
+                data = self.ser.readline().decode("utf-8", errors="ignore").strip()
+                if data:
+                    self.log_terminal(f"← {data}")
+            except Exception:
+                pass
         self.after(30, self.read_serial)
 
-    def send_serial(self, command):
-        command = command.strip()
-        if not command:
-            return False
-        if not self.is_serial_connected():
-            messagebox.showwarning("Serie", "No hay una conexión serie activa.")
-            return False
-        try:
-            self.ser.write((command + "\n").encode("ascii"))
-            self.ser.flush()
-            return True
-        except Exception as e:
-            self.log_terminal(f"[ERROR TX] {e}")
-            return False
+    def send_command(self, cmd: str):
+        self.log_terminal(f"→ {cmd}")
+        if self.ser and self.ser.is_open:
+            try:
+                self.ser.write((cmd + "\n").encode("utf-8"))
+            except Exception as e:
+                self.log_terminal(f"Error al enviar: {e}")
 
     def send_manual(self):
-        command = self.command_var.get().strip()
-        if self.send_serial(command):
+        cmd = self.command_var.get().strip()
+        if cmd:
+            self.send_command(cmd)
             self.command_var.set("")
-
-    def send_rod_diameter(self):
-        val = self.rod_diameter_var.get()
-        if self.send_serial(f"G5 {val}"):
-            self.position_sent = True  # NUEVO: Marca la bandera como verdadera tras el envío exitoso
-            self.update_start_button_state()  # Re-evalúa el estado del botón INICIO
-
-    def send_inicio(self):
-        self.send_serial("G80")
-
-    def log_terminal(self, text):
-        if hasattr(self, "terminal"):
-            self.terminal.insert("end", text)
-            self.terminal.see("end")
 
     def clear_terminal(self):
         self.terminal.delete("1.0", "end")
 
-    @staticmethod
-    def fmt(value):
-        value = float(value)
-        return (
-            str(int(value))
-            if value.is_integer()
-            else f"{value:.4f}".rstrip("0").rstrip(".")
-        )
+    def log_terminal(self, msg: str):
+        self.terminal.insert("end", msg + "\n")
+        self.terminal.see("end")
 
-    def linear_distance(self):
-        value = float(self.linear_distance_var.get())
-        if value <= 0:
-            raise ValueError("La distancia debe ser mayor que 0.")
-        return value
+    def send_rod_diameter(self):
+        diametro = self.rod_diameter_var.get()
+        largo = self.rod_length_var.get()
+        cmd = f"G5 {diametro}{largo}"
+        self.send_command(cmd)
+        self.position_sent = True
+        self.update_start_button_state()
 
-    def y_degrees(self):
-        value = float(self.y_degrees_var.get().replace("°", ""))
-        if value <= 0:
-            raise ValueError("Los grados deben ser mayores que 0.")
-        return value
+    def move_linear(self, axis: str, positive: bool):
+        dist = float(self.linear_distance_var.get())
+        sign = "" if positive else "-"
+        self.send_command(f"G1 {axis}{sign}{dist}")
 
-    def move_linear(self, axis, positive):
-        try:
-            distance = self.linear_distance()
-        except ValueError as e:
-            messagebox.showwarning("Movimiento", str(e))
-            return
-        command = "G1" if positive else "G2"
-        self.send_serial(f"{command} {axis}{self.fmt(distance)}")
+    def rotate_y(self, clockwise: bool):
+        deg = float(self.y_degrees_var.get().replace("°", ""))
+        sign = "-" if clockwise else ""
+        self.send_command(f"G1 Y{sign}{deg}")
 
     def home_general(self):
-        self.send_serial("G0")
+        self.send_command("G0")
 
-    def home_axis(self, axis):
-        self.send_serial(f"G0 {axis}")
-
-    def rotate_y(self, clockwise):
-        try:
-            degrees = self.y_degrees()
-        except ValueError as e:
-            messagebox.showwarning("Movimiento Y", str(e))
-            return
-        command = "G1" if clockwise else "G2"
-        self.send_serial(f"{command} Y{self.fmt(degrees)}")
+    def home_axis(self, axis: str):
+        self.send_command(f"G0 {axis}")
 
     def toggle_motor(self):
-        new_state = not self.motor_on
-        command = "S1 ON" if new_state else "S1 OFF"
-        if self.send_serial(command):
-            self.motor_on = new_state
-            if self.motor_on:
-                self.motor_button.configure(
-                    text="MOTOR AUXILIAR: ON",
-                    fg_color="#10B981",
-                    hover_color="#059669",
-                )
-            else:
-                self.motor_button.configure(
-                    text="MOTOR AUXILIAR: OFF",
-                    fg_color=COLOR_BTN_AUX_OFF,
-                    hover_color=COLOR_BTN_AUX_OFF_HOVER,
-                )
+        self.motor_on = not self.motor_on
+        if self.motor_on:
+            self.motor_button.configure(
+                text="MOTOR SIERRA: ON",
+                fg_color=COLOR_BTN_START,
+                hover_color=COLOR_BTN_START_HOVER
+            )
+            self.send_command("S1 ON")
+        else:
+            self.motor_button.configure(
+                text="MOTOR SIERRA: OFF",
+                fg_color=COLOR_BTN_AUX_OFF,
+                hover_color=COLOR_BTN_AUX_OFF_HOVER
+            )
+            self.send_command("S1 OFF")
+
+    def send_inicio(self):
+        self.send_command("G1 INICIO")
 
     def close(self):
-        self.serial_reader_running = False
-        if self.ser is not None:
-            try:
-                self.ser.close()
-            except Exception:
-                pass
+        self.close_serial()
         self.destroy()
 
 

@@ -1,83 +1,8 @@
 #include "Motores.h"
-
-void girarMotorPap(int motor,bool dir, double distancia, int velocidad){
-  long stepPin = 0, dirPin = 0, microsteps = 0;
-  if(motor == X)
-  {
-    stepPin = STEP_PIN_X;
-    dirPin = DIR_PIN_X;
-    microsteps = MICROSTEPS_X;
-    
-  }
-  else if(motor == Y)
-  {
-    stepPin = STEP_PIN_Y;
-    dirPin = DIR_PIN_Y;
-    microsteps = MICROSTEPS_Y;
-  }
-  else if(motor == M)
-  {
-    stepPin = STEP_PIN_M;
-    dirPin = DIR_PIN_M;
-    microsteps = MICROSTEPS_M;
-  }
-  else if(motor == Z)
-  {
-    stepPin = STEP_PIN_Z;
-    dirPin = DIR_PIN_Z;
-    microsteps = MICROSTEPS_Z;
-  }
-  digitalWrite(dirPin, dir);
-  for (double i = 0; i < (microsteps) * distancia; i++) {
-    digitalWrite(stepPin, HIGH);
-    delayMicroseconds(1000000/80/velocidad);
-    digitalWrite(stepPin, LOW);
-    delayMicroseconds(1000000/80/velocidad);
-  }
-}
-
-void origenMotor(int motor, int stopPin){
-  int distanciaInicio = 0;
-  int dir = 0, velocidad = 0;
-  
-  if (motor == X){
-    distanciaInicio = posX;
-    dir = HOME_X;
-    velocidad = VELOCIDAD_FUNC_X + 20;
-    posX = 0;
-  }
-  else if (motor == Z){
-    distanciaInicio = posZ;
-    dir = HOME_Z;
-    velocidad = VELOCIDAD_FUNC_Z + 10;
-    posZ = 0;
-  }
-
-  girarMotorPap(motor,dir,distanciaInicio - 5,120);
-
-  while(digitalRead(stopPin)){
-    girarMotorPap(motor,dir, 1,velocidad);
-  }
-  
-  girarMotorPap(motor,!dir, 5,velocidad);
-  
-  while(digitalRead(stopPin)){
-    girarMotorPap(motor,dir, 1,velocidad);
-  }
-}
-
-void encenderMotor(){
-  digitalWrite(MOTOR_DC, HIGH);
-}
-
-void apagarMotor(){
-  digitalWrite(MOTOR_DC, LOW);
-}
+#define MOTOR motor
 
 void initMotores(){
-  pinMode(MOTOR_DC, INPUT_PULLUP);
   /*MOTOR X*/
-
   pinMode(STEP_PIN_X, OUTPUT);
   pinMode(DIR_PIN_X, OUTPUT);
   pinMode(ENABLE_PIN_X, OUTPUT);
@@ -91,13 +16,6 @@ void initMotores(){
   digitalWrite(ENABLE_PIN_Y, LOW); // Habilita el A4988
   digitalWrite(DIR_PIN_Y, HIGH);
 
-    /*MOTOR Y2*/
-  pinMode(STEP_PIN_M, OUTPUT);
-  pinMode(DIR_PIN_M, OUTPUT);
-  pinMode(ENABLE_PIN_M, OUTPUT);
-  digitalWrite(ENABLE_PIN_M, LOW); // Habilita el A4988
-  digitalWrite(DIR_PIN_M, HIGH);
-
   /*MOTOR Z*/
   pinMode(STEP_PIN_Z, OUTPUT);
   pinMode(DIR_PIN_Z, OUTPUT);
@@ -106,6 +24,46 @@ void initMotores(){
   digitalWrite(DIR_PIN_Z, HIGH);
 
   /*MOTOR DC*/
+  pinMode(MOTOR_DC, INPUT_PULLUP);
   digitalWrite(MOTOR_DC, LOW);
-  
 }
+
+void encenderMotor(){
+  digitalWrite(MOTOR_DC, HIGH);
+}
+
+void apagarMotor(){
+  digitalWrite(MOTOR_DC, LOW);
+}
+
+void girarMotorPap(int motor, double distancia){
+  bool direccion = !home[motor];
+  if(max[MOTOR] < pos[MOTOR] + distancia)
+    distancia = max[MOTOR] - pos[motor];
+  else if(0 > pos[MOTOR] + distancia)
+    distancia = pos[MOTOR];
+  pos[MOTOR] = pos[MOTOR] + distancia;
+  if(motor == Y) distancia = distancia/360;
+  if(distancia < 0){
+    distancia = distancia * (-1);
+    direccion = home[motor];
+  }
+  digitalWrite(dirPin[MOTOR], direccion);
+  for (double i = 0; i < (microsteps[MOTOR]) * distancia; i++) {
+    digitalWrite(stepPin[MOTOR], HIGH);
+    delayMicroseconds(1000000/80/velocidadFunc[MOTOR]);
+    digitalWrite(stepPin[MOTOR], LOW);
+    delayMicroseconds(1000000/80/velocidadFunc[MOTOR]);
+  }
+  mostrarDatos();
+}
+
+void origenMotor(int motor){
+  while(digitalRead(FIN_DE_CARRERA[MOTOR])) girarMotorPap(motor, -1);
+  girarMotorPap(motor, 5);
+  while(digitalRead(FIN_DE_CARRERA[MOTOR])) girarMotorPap(motor, -1);
+  pos[MOTOR] = 0;
+}
+
+
+

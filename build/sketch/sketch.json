@@ -1,4 +1,4 @@
-#line 1 "C:\\Users\\a.otero_admin\\OneDrive - Colegio Bayard\\Escritorio\\Miplera\\Firmware\\Miplera\\sketch.json"
+#line 1 "C:\\Users\\Agustin\\Documents\\Emprendimientos\\Proyectos\\Miplera\\Firmware\\Miplera\\sketch.json"
 {
   "cpu": {
     "fqbn": "arduino:avr:mega:cpu=atmega2560",

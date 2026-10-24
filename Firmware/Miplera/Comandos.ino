@@ -1,70 +1,49 @@
 #include "Comandos.h"
-#define ALTURA_FUNCIONAMIENTO (double)(alturaVarilla + diametroVarilla/2 - datos[i])
+#define MOTOR comando[0]-88
+
+bool sentidoFuncionamiento = 0;
+String numeroTemporal = "";
+bool cargaCompleta = false;
+// Variables para el filtro de seguridad comandos G
+int encabezado = -1;
+String bufferEncabezado = "";
 
 void mostrarDatos(){
   Serial.print("  X:");
-  Serial.print(posX);
+  Serial.print(pos[X]);
   Serial.print("  Y:");
-  Serial.print(posY);
+  Serial.print(pos[Y]);
   Serial.print("  Z:");
-  Serial.print(posZ);
+  Serial.print(pos[Z]);
   Serial.print("\n");
 }
 
 void comandoG0(String comando){
-      if(comando[0] == 'X'){
-        origenMotor(X,FIN_DE_CARRERA_X);
-        posX = 0;
-      }
-
-      else if(comando[0] == 'Z'){
-        origenMotor(Z,FIN_DE_CARRERA_Z);
-        posZ = 0;
-      }
-
+      if(comando)
+        origenMotor(comando[0]);
       else{
-        origenMotor(Z,FIN_DE_CARRERA_Z);
-        origenMotor(X,FIN_DE_CARRERA_X);
+        origenMotor(Z);
+        origenMotor(X);
       }
   mostrarDatos();
 }
 
 void comandoG1(String comando){
-    double distancia = comando.substring(1).toDouble();
-    int motor = 0, velocidad = VELOCIDAD_TEST;
-    bool direccion = false;
-    if(comando[0] == 'X')
-    {
-      if(MAXIMO_X <= posX + distancia)
-        distancia = MAXIMO_X - posX;
-      posX = posX + distancia;
-      motor = X;
-      direccion = !(HOME_X);
-    }
-    else if(comando[0] == 'Y')
-    {
-      posY = posY + distancia;
-      distancia = distancia/360;
-      motor = Y;
-    }
-    else if(comando[0] == 'M')
-    {
-      distancia = distancia/360;
-      posM = posM + distancia;
-      motor = M;
-    }
-    else if(comando[0] == 'Z')
-    {
-      if(MAXIMO_Z <= posZ + distancia)
-        distancia = MAXIMO_Z - posZ;
-      posZ = posZ + distancia;
-      motor = Z;
-      direccion = !(HOME_Z);
-      velocidad = 10;
-    }
-  //Serial.print(distancia,7);
-  girarMotorPap(motor,direccion,distancia,velocidad);
-  mostrarDatos();
+  double distancia = 0;
+  if(comando.substring(1,2) == '-')
+  {
+    distancia = comando.substring(2).toDouble() * (-1);
+  }
+  else 
+    distancia = comando.substring(1).toDouble();
+  Serial.println(distancia);
+  girarMotorPap(comando[0]-88,distancia);
+}
+/* old
+void comandoG2(String comando){
+  double distancia = comando.substring(1).toDouble();
+  if(comando[0] == 'Y') distancia = distancia/360;
+  girarMotorPap(comando[0],(home[MOTOR]),(-1)*distancia);
 }
 
 void comandoG2(String comando){
@@ -85,12 +64,6 @@ void comandoG2(String comando){
       distancia = distancia/360;
       motor = Y;
     }
-    else if(comando[0] == 'M')
-    {
-      posM = posM - distancia;
-      distancia = distancia/360;
-      motor = M;
-    }
     else if(comando[0] == 'Z')
     {
       if(0 >= posZ - distancia)
@@ -104,22 +77,22 @@ void comandoG2(String comando){
   mostrarDatos();
   
 }
-
+*/
 void comandoS1(String comando){
-  if(comando == "ON")
-    encenderMotor();
-  else if(comando == "OFF")
-    apagarMotor();
+  if(comando == "ON") encenderMotor();
+  else if(comando == "OFF") apagarMotor();
 }
 
-void comandoG5(String comando)
-{
-  alturaVarilla = posZ;
-  diametroVarilla = comando.toInt();
+void comandoG5(String comando){
+  Serial.print(comando);
+  alturaVarilla = pos[Z];
+  diametroVarilla = comando.substring(0,2).toInt();
+  largoVarilla = comando.substring(2).toInt();
   Serial.print("La altura seleccionada es: ");
   Serial.print(alturaVarilla);
   Serial.println("mm");
-  Serial.println("diametro de la varilla es: " + comando + "mm");
+  Serial.println("largo de la varilla es: " + comando.substring(2) + "cm");
+  Serial.println("diametro de la varilla es: " + comando.substring(0,2) + "mm");
 }
 
 void comandoHelp(){
@@ -131,28 +104,181 @@ void comandoHelp(){
 }
 
 void inicioPrograma(){
-  int altura = 0;
-  bool sentido = !(HOME_X);
   Serial.print("Programa iniciado");
-  posY = 0;
-  posM = 0;
+  pos[Y] = 0;
   /* INICIO DE CORTE*/
-  origenMotor(Z,FIN_DE_CARRERA_Z);
-  origenMotor(X,FIN_DE_CARRERA_X);
-  mostrarDatos();
+  //comandoG0("");
+  //mostrarDatos();
   encenderMotor();
-  for(int i=0;i<cantidadDatos;i++){
-    girarMotorPap(Z,!(HOME_Z),ALTURA_FUNCIONAMIENTO,VELOCIDAD_FUNC_Z); //baja eje Z
-    posY = ALTURA_FUNCIONAMIENTO;
-    girarMotorPap(X,!(HOME_X),MAXIMO_X,VELOCIDAD_FUNC_X/2); //corta
-    sentido = !sentido;
-    girarMotorPap(Z,(HOME_Z),ALTURA_FUNCIONAMIENTO,VELOCIDAD_FUNC_Z);//sube eje Z
-    posZ = 0;
-    girarMotorPap(X,(HOME_X),MAXIMO_X,VELOCIDAD_FUNC_X); //vuelve
-    sentido = !sentido;
-    girarMotorPap(Y,true,((double)1/cantidadDatos),VELOCIDAD_FUNC_Y); //gira
-    posY = posY + 360/cantidadDatos;
-  }
-  apagarMotor();
-  origenMotor(X,FIN_DE_CARRERA_X);
+  sentidoFuncionamiento = !(home[X]);
 }
+  
+void funcionamiento(){
+  girarMotorPap(Z,ALTURA_FUNCIONAMIENTO); //baja eje Z
+  pos[Z] = ALTURA_FUNCIONAMIENTO;
+  girarMotorPap(X,largoVarilla*10); //corta
+  largoVarilla = largoVarilla * (-1);
+  girarMotorPap(Z,ALTURA_FUNCIONAMIENTO * (-1));//sube eje Z
+  pos[Z] = 0;
+  girarMotorPap(Y,((double)1/cantidadDatos)); //gira
+  pos[Y] += 360/cantidadDatos;
+  datoActual++;
+}  
+
+void lecturaPuertoSerie(){
+  while (Serial.available() > 0 && !cargaCompleta) {
+    char c = Serial.read();
+
+    // ESTADO 1: Validar si llega el comando "G99" al principio
+    if (encabezado == -1) {
+      // Ignorar saltos de línea iniciales o espacios antes del comando
+      if (c == '\n' || c == '\r' || c == ' ') continue; 
+      bufferEncabezado += c;
+      // Si el búfer acumulado es igual a "G99", desbloqueamos la carga
+      if (bufferEncabezado == "G99") {
+        encabezado = 99;
+        Serial.println("[OK] Comando G99 detectado. Iniciando recepcion de datos...");
+        numeroTemporal = ""; // Limpiamos por seguridad
+      }
+      else if (bufferEncabezado == "G0"){
+        encabezado = 0;
+        numeroTemporal = ""; // Limpiamos por seguridad
+      }
+      else if (bufferEncabezado == "G1"){
+        encabezado = 1;
+        numeroTemporal = ""; // Limpiamos por seguridad
+      }/*
+      else if (bufferEncabezado == "G2"){
+        encabezado = 2;
+        numeroTemporal = ""; // Limpiamos por seguridad
+      }
+      */
+      else if (bufferEncabezado == "G5"){
+        encabezado = 5;
+        numeroTemporal = ""; // Limpiamos por seguridad
+      }
+      else if (bufferEncabezado == "S1"){
+        encabezado = 3;
+        numeroTemporal = ""; // Limpiamos por seguridad
+      }
+      else if (bufferEncabezado == "G80"){
+        encabezado = 80;
+        numeroTemporal = ""; // Limpiamos por seguridad
+      }
+      // Si el búfer se llena con texto incorrecto (ej. "G98" o basura), se reinicia el filtro
+      else if (bufferEncabezado.length() >= 3) {
+        Serial.print("[ERROR] Comando no reconocido: ");
+        Serial.println(bufferEncabezado);
+        bufferEncabezado = ""; // Resetear y seguir esperando el correcto
+      }
+      continue; // Saltamos al siguiente carácter del ciclo while
+    }
+
+    // ESTADO 2: Carga de datos activa (Solo ocurre si encabezado es true)
+    
+    // 1. Detectar el final de la transmisión
+    if (c == '$') {
+      procesarNumeroTemporal();
+      cargaCompleta = true;
+      mostrarDatosLeidos();
+      break;
+    }
+
+    if (c == '\n'){
+      cargaCompleta = true;
+      switch(encabezado){
+        case 0:
+          comandoG0(numeroTemporal);
+        break;
+        case 1:
+          comandoG1(numeroTemporal);
+        break; 
+        case 2:
+          //comandoG2(numeroTemporal);
+        break; 
+        case 3:
+          comandoS1(numeroTemporal);
+        break;
+        case 5:
+          comandoG5(numeroTemporal);
+        break;
+        case 80:
+          estadoActual = ESTADO_FUNCIONAMIENTO;
+        break;
+      }
+      indiceActual = 0;
+      cargaCompleta = false;
+      encabezado = -1;
+      bufferEncabezado = "";
+    }
+
+    // 2. Si es un separador (salto de línea, retorno o espacio), procesamos el número acumulado
+    if (c == '\r' || c == ' ') {
+      procesarNumeroTemporal();
+    } 
+    // 3. Si es un carácter válido para un número float (dígitos, punto o signo menos)
+    else if (isDigit(c) || c == '.' || c == '-' || c == 'X' || c == 'Y' || c == 'Z' || c == 'O' || c == 'N' || c == 'I' || c == 'C' || c == 'F') {
+      numeroTemporal += c;
+    }
+    // 4. Si entra texto inesperado durante la carga, limpiamos el temporal para no corromper la cifra
+    else {
+      numeroTemporal = ""; 
+    }
+  }
+  
+}
+
+void procesarNumeroTemporal() {
+  numeroTemporal.trim();
+  if (numeroTemporal.length() > 0) {
+    float valor = numeroTemporal.toFloat();
+    
+    datos[indiceActual] = valor;
+    indiceActual++;
+    
+    numeroTemporal = "";
+
+    // Protección de desbordamiento
+    if (indiceActual >= TOTAL_FILAS) {
+      cargaCompleta = true;
+      Serial.println("\n[AVISO] Memoria llena. Se alcanzaron las 360 filas.");
+      mostrarDatosLeidos();
+    }
+  }
+}
+
+void mostrarDatosLeidos() {
+  Serial.println("\n--- DATOS CARGADOS EN MEMORIA CON ÉXITO ---");
+  Serial.print("Total de filas reales guardadas: ");
+  Serial.println(indiceActual);
+  
+  for (int i = 0; i < indiceActual; i++) {
+    if (i < 5 || i >= indiceActual - 5) {
+      Serial.print("Fila [");
+      Serial.print(i);
+      Serial.print("]: ");
+      Serial.println(datos[i], 4);
+    } else if (i == 5) {
+      Serial.println("... [Datos intermedios ocultos para no saturar la pantalla] ...");
+    }
+    cantidadDatos = i+1;
+  }
+  
+  indiceActual = 0;
+  cargaCompleta = false;
+  encabezado = -1;
+  bufferEncabezado = "";
+  
+}
+
+void printBanner() {
+  Serial.println(F("                                                                                         "));
+  Serial.println(F("  ███╗   ███╗██╗██████╗ ██╗     ███████╗██████╗  █████╗                                   "));
+  Serial.println(F("  ████╗ ████║██║██╔══██╗██║     ██╔════╝██╔══██╗██╔══██╗                                  "));
+  Serial.println(F("  ██╔████╔██║██║██████╔╝██║     █████╗  ██████╔╝███████║                                  "));
+  Serial.println(F("  ██║╚██╔╝██║██║██╔═══╝ ██║     ██╔══╝  ██╔══██╗██╔══██║                                  "));
+  Serial.println(F("  ██║ ╚═╝ ██║██║██║     ███████╗███████╗██║  ██║██║  ██║                                  "));
+  Serial.println(F("  ╚═╝     ╚═╝╚═╝╚═╝     ╚══════╝╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝                                  "));
+  Serial.println(F("                                                                                         "));
+}
+
